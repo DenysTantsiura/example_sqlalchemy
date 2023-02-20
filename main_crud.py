@@ -73,21 +73,6 @@ logging.info(f'=== STEP 1: \n{engine}')
 таблиць бази даних та їх описи в Python класах Person та Address."""
 Base = declarative_base()
 
-
-class Person(Base):
-    __tablename__ = 'persons'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-
-class Address(Base):
-    __tablename__ = 'addresses'
-    id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    person = relationship(Person)
-
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer(), primary_key=True)
@@ -110,30 +95,55 @@ class Article(Base):
 Base.metadata.create_all(engine) 
 Base.metadata.bind = engine
 
-# ORM підхід виразніший. Наприклад, додавання нових записів до таблиці — 
-# це просто створення нових об'єктів класів Person та Address:
-new_person = Person(name="Bill")
-session.add(new_person)
-session.commit()
-# щоб зміни набули чинності та були записані до бази, обов'язково треба виконати 
-# commit, після того, як ми додали дані методом add.
-new_address = Address(post_code='00000', person=new_person)
-session.add(new_address)
+# from rel_one_to_many import User, Article, session
+
+# Create (створення)
+"""Щоб використовувати SQLAlchemy для додавання даних до БД, 
+нам потрібно тільки створити екземпляр відповідного класу, 
+викликати session.add та після session.commit."""
+
+user = User(name='Boris Johnson')
+session.add(user)
 session.commit()
 
-# Щоб отримати дані з бази, можна скористатися методом query
-for person in session.query(Person).all():
-    print(person.name)  # Bill
+article = Article(title='Our country’s saddest day', content='Lorem ipsum...', user_id=user.id)
+session.add(article)
+session.commit()
 
-# Можна отримати доступ до інформації в таблиці статей через атрибут статей користувачів:
-users = session.query(User).filter_by(name='Peter Miller').all()
+# Read (читання)
+"""Якщо ми знаємо ідентифікатор користувача, ми можемо використовувати метод get 
+Метод для отримання значення поля може безпосередньо використовувати властивості класу:"""
+user = session.query(User).get(1)
+print(user.id, user.name)
+# Метод all використовують, щоб отримати всі результати запиту:
+users = session.query(User).all()
 for user in users:
-    for article in user.articles:
-        print(article.title, user.name)
+    print(user.id, user.name)
+# Є також методи first, scalar з one. Різниця між трьома:
+# first — Повертає перший об'єкт запису, якщо він є.
+# one — Запитує всі рядки і викликає виняток, якщо щось повертається, крім одного результату.
+# scalar — Повертає перший елемент першого результату, None, якщо результату немає, або помилку, якщо їх більше ніж один результат.
 
-# Або у зворотний бік:
-article = session.query(Article).filter_by(title='Our country’s saddest day').one()
-print(article.title, article.author.name)
+# Метод filter_by використовується для фільтрації по певному полю, або його аналог метод filter трохи з іншим синтаксисом. 
+# Давайте відфільтруємо по полю:
+user1 = session.query(User).filter_by(name='Boris Johnson').first()
+user2 = session.query(User).filter(User.name == 'Boris Johnson').scalar()
+print(user1.id, user1.name)
+print(user2.id, user2.name)
+
+# Update (оновлення)
+# Подібно до доданих даних, додавайте і фіксуйте після оновлення даних.
+article = session.query(Article).get(1)
+article.content = 'Very important content for the article'
+session.add(article)
+session.commit()
+
+# Delete (видалення)
+# Видалення відбувається напряму — викликом методу delete для отриманого об'єкту:
+article = session.query(Article).get(1)
+session.delete(article)
+session.commit()
+
 
 logging.info(f'=== FINISH')
 
