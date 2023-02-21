@@ -63,6 +63,7 @@ logging.info(f'=== START_0')
 # в SQLAlchemy він називається engine:
 engine = create_engine('sqlite:///:memory:', echo=True)  # використовуємо SQLite базу даних у пам'яті
 # engine = create_engine('sqlite:///sqlalchemy_example.db')
+engine = create_engine('postgresql+psycopg2://scott:tiger@localhost/postgresql')
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 logging.info(f'=== STEP 1: \n{engine}')

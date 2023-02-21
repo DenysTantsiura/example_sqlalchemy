@@ -9,6 +9,8 @@ packages = [{include = "example_sqlalchemy"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 sqlalchemy = "^2.0.4"
+faker = "^17.0.0"
+psycopg2 = "^2.9.5"
 
 
 [tool.poetry.group.dev.dependencies]
