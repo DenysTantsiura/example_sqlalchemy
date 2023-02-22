@@ -4,7 +4,7 @@ import pathlib
 
 key_file = 'key.txt'
 
-logging.basicConfig(level=logging.CRITICAL, format='%(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 
 def watcher(function):
@@ -36,7 +36,7 @@ def load_key() -> str:
 def get_password() -> str:
     """Return password from local file or user input in CLI."""
     if pathlib.Path(key_file).exists():
-        print('Ok! Key-file found.')
+        logging.info(f'Ok! Key-file found.')
         key = load_key()
 
     else:
