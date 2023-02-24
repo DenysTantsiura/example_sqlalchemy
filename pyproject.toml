@@ -11,6 +11,7 @@ python = "^3.10"
 sqlalchemy = "^2.0.4"
 faker = "^17.0.0"
 psycopg2 = "^2.9.5"
+alembic = "^1.9.4"
 
 
 [tool.poetry.group.dev.dependencies]

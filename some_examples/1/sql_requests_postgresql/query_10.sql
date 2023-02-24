@@ -18,4 +18,5 @@ FROM
   teachers AS t
 	  ON sub.teacher_id = t.id
 WHERE s.id = 9 AND t.id = 3 -- Student = "Дмитро Атаманюк" AND Teacher = "Соломія Гузій"
-GROUP BY Subject, sub.id, Student, Teacher;
+--GROUP BY Subject, sub.id, Student, Teacher;
+GROUP BY sub.id, Student, Teacher;

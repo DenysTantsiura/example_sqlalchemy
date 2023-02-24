@@ -6,14 +6,10 @@ from datetime import (
 import logging
 # from pprint import pprint
 from random import randint
-from timeit import default_timer
-from typing import Optional
 
 from faker import Faker
 from faker.providers import DynamicProvider
-from psycopg2 import Error # DatabaseError
 from sqlalchemy import (
-    create_engine,
     CHAR,
     Column,
     DATE,
@@ -24,18 +20,13 @@ from sqlalchemy import (
     TIMESTAMP, 
     VARCHAR,
     )
-# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.declarative import declarative_base  # in v.1.4 sqlalchemy
 from sqlalchemy.orm import (
     declarative_base,
     relationship, 
     Session,
-    sessionmaker,
     )
 from sqlalchemy.sql import func  # select
-
-from authentication import get_password
-from connect_to_db_postgresql import create_connection
-# from sql_requests_postgresql import sql_requests, sql_script
 
 
 NUMBER_OF_GROUPS = 3
@@ -43,12 +34,7 @@ NUMBER_OF_STUDENTS = randint(30, 50)
 NUMBER_OF_TEACHERS = randint(3, 5)
 NUMBER_OF_SUBJECTS = randint(5, 8)
 NUMBER_OF_ASSESSMENTS = 19 * NUMBER_OF_SUBJECTS * NUMBER_OF_STUDENTS  # randint(1, 19)
-# SQL_CREATED_FILE = './create_tables_postgresql.sql'
 YEAR_STUDY_START = 2022
-HOST = 'balarama.db.elephantsql.com'
-USER = 'scgkgtyo'
-DATABASE = 'scgkgtyo'
-PASSWORD = get_password()
 
 logging.basicConfig(level=logging.DEBUG, format='%(threadName)s %(message)s')
 
@@ -107,7 +93,7 @@ class Assessment(Base):
     student = relationship(Student)
 
 
-def create_all_tables(engine: Engine) -> None:
+def create_all_tables(engine: Engine) -> bool:
     """Create a tables by Base in engine."""
     try:
         # Щоб створити описані вище таблиці у порожній базі даних, 
@@ -119,6 +105,9 @@ def create_all_tables(engine: Engine) -> None:
 
     except Exception as error:
         logging.error(f'Error: {error}\nwhen try created tables.')
+        return False
+
+    return True
 
 
 def drop_table_if_exists(engine: Engine) -> None:
@@ -174,7 +163,7 @@ def fake_data_generator() -> tuple:
     return fake_groups, fake_students, fake_teachers, fake_subjects, fake_assessments
 
 
-def insert_data_to_db(session: Session, set_of_data: tuple) -> Optional[int]:
+def insert_data_to_db(session: Session, set_of_data: tuple) -> bool:
     """Insertind data to DataBase."""
     groups, teachers, students, subjects, assessments = set_of_data
     try:
@@ -189,9 +178,11 @@ def insert_data_to_db(session: Session, set_of_data: tuple) -> Optional[int]:
 
     except Exception as error:  # except Error as error:
         logging.error(f'Wrong insert. error:\n{error}')
-        return 1
+        return False
         
     logging.info(f'=== STEP 4:DataBase created, data inserted.')
+
+    return True
 
 
 def prepare_data_to_insert(groups: list, students: list, teachers: list, subjects: list, assessments: list) -> tuple:
@@ -228,46 +219,9 @@ def random_study_day():
     start_date = datetime.strptime(f'{YEAR_STUDY_START}-09-01', '%Y-%m-%d')
     end_date = datetime.strptime(f'{YEAR_STUDY_START+1}-06-15', '%Y-%m-%d')
 
-    current_date = start_date + timedelta(randint(1, (end_date - start_date).days - 9))  # 9 = Saturday Sunday + last week
+    current_date = start_date + timedelta(randint(1, (end_date - start_date).days - 9))  # 9=Saturday Sunday + last week
 
     while current_date.isoweekday() in (6, 7):  # Saturday Sunday
         current_date += timedelta(1)
     
     return current_date
-
-
-def main():
-    # engine, session = create_connection()
-    # Робота з ORM починається зі створення об'єкта, що інкапсулює доступ до бази даних, 
-    # в SQLAlchemy він називається engine:
-    engine = create_engine(f'postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}/{DATABASE}')
-        # dialect[+driver]://user:password@host/dbname[?key=value..]  # ? dbname = postgresql ?
-    # сесії, які приховують створення з'єднань з базою та дають можливість виконувати 
-    # кілька транзакцій одним запитом для економії ресурсів.
-    # створюємо клас DBSession, об'єкти якого є окремими сесіями доступу до бази даних. 
-    # Кожна така сесія може зберігати набір транзакцій і виконувати їх тільки коли це дійсно потрібно. 
-    # Таке "ледаче" виконання зменшує навантаження на базу та прискорює роботу програми.
-    DBSession = sessionmaker(bind=engine)
-    # Сесія в ORM — це об'єкт, за допомогою якого ви можете керувати, коли саме накопичені 
-    # зміни будуть застосовані до бази. Для цього є метод commit. Є методи для додавання 
-    # одного або кількох об'єктів до бази (add, add_all).
-    session = DBSession()
-    logging.debug(f'=== STEP 1 - Engine: \n{engine}')
-  
-    drop_table_if_exists(engine)
-    
-    create_all_tables(engine)
-
-    insert_data_to_db(session, prepare_data_to_insert(*fake_data_generator()))
-    
-    logging.info(f'Recorded {NUMBER_OF_GROUPS} group(s).')
-    logging.info(f'Recorded {NUMBER_OF_STUDENTS} student(s).')
-    logging.info(f'Recorded {NUMBER_OF_TEACHERS} teacher(s).')
-    logging.info(f'Recorded {NUMBER_OF_SUBJECTS} subject(s).')
-    logging.info(f'Recorded overall {NUMBER_OF_ASSESSMENTS} assessment(s).')
-
-
-if __name__ == '__main__':  # !?
-    print('step-0')
-    main()
-    # sql_requests(sql_script, HOST, USER, DATABASE, PASSWORD)
