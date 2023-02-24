@@ -52,8 +52,9 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
+    main()
     selections()
+
 
 # alembic downgrade base
 # alembic revision --autogenerate -m 'Init'

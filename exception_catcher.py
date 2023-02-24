@@ -8,7 +8,7 @@ from database.connect_to_db_postgresql import session
 logging.basicConfig(level=logging.DEBUG, format='%(threadName)s %(message)s')
 
 
-def exeption_catcher():
+def exeption_catcher(*param):
     
     def wrapper(func: Callable) -> Callable:
         
@@ -16,19 +16,17 @@ def exeption_catcher():
         def wrapped(*args, **kwargs) -> bool:  # Any
             
             try:
-                return func(*args, **kwargs)
+                function_result =  func(*args, **kwargs)
             
             except Exception as error:  # except Error as error:
-                logging.error(f'\t\t\tWrong insert groups, error:\n{error}')
+                logging.error(f'\t\t\tWrong insert {func.__name__}, error:\n{error}')
                 session.rollback()
                 function_result = False
             
-            logging.info(f'\t\t\t=== STEP: Groups added.')
+            logging.info(f'\t\t\t=== STEP-{param}: {func.__name__} done.')
             function_result = True
             
-            # finally:
-            #     total = round(time.time() - start, 3)
-            #     print(f'Work duration:\t{total} s.')
+            return function_result
                 
         return wrapped
     

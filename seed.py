@@ -18,6 +18,7 @@ from database.models import (
     Subject,
     Assessment
     )
+from exception_catcher import exeption_catcher
 
 
 NUMBER_OF_GROUPS = 3
@@ -30,60 +31,42 @@ YEAR_STUDY_START = 2022
 logging.basicConfig(level=logging.DEBUG, format='%(threadName)s %(message)s')
 
 
+@exeption_catcher(1)
 def create_groups() -> bool:
     """Create fake groups."""
-    try:
-        fake_groups = [f'Group-{number}' for number in range(1, NUMBER_OF_GROUPS + 1)]
-        [session.add(Group(group_name=group)) for group in fake_groups]
-        session.commit()
-
-    except Exception as error:  # except Error as error:
-        logging.error(f'\t\t\tWrong insert groups, error:\n{error}')
-        session.rollback()
-        return False
-    
-    logging.info(f'\t\t\t=== STEP: Groups added.')
+    fake_groups = [f'Group-{number}' for number in range(1, NUMBER_OF_GROUPS + 1)]
+    [session.add(Group(group_name=group)) for group in fake_groups]
+    session.commit()
 
     return True
 
 
+@exeption_catcher(2)
 def create_students() -> bool:
     """Create fake students."""
     fake_data = Faker('uk_UA')
-    try:
-        fake_students = [fake_data.name() for _ in range(NUMBER_OF_STUDENTS)]
-        for_students = [(student, randint(1, NUMBER_OF_GROUPS)) for student in fake_students]
-        [session.add(Student(name=name, group_id=id)) for name, id in for_students]
-        session.commit()
 
-    except Exception as error:  # except Error as error:
-        logging.error(f'\t\t\tWrong insert students, error:\n{error}')
-        session.rollback()
-        return False
-    
-    logging.info(f'\t\t\t=== STEP: Students added.')
+    fake_students = [fake_data.name() for _ in range(NUMBER_OF_STUDENTS)]
+    for_students = [(student, randint(1, NUMBER_OF_GROUPS)) for student in fake_students]
+    [session.add(Student(name=name, group_id=id)) for name, id in for_students]
+    session.commit()
 
     return True
 
 
+@exeption_catcher(3)
 def create_teachers() -> bool:
     """Create fake teachers."""
     fake_data = Faker('uk_UA')
-    try:
-        fake_teachers = [fake_data.name() for _ in range(NUMBER_OF_TEACHERS)]
-        [session.add(Teacher(name=name)) for name in fake_teachers]
-        session.commit()
 
-    except Exception as error:  # except Error as error:
-        logging.error(f'\t\t\tWrong insert teachers, error:\n{error}')
-        session.rollback()
-        return False
-    
-    logging.info(f'\t\t\t=== STEP: Teachers added.')
+    fake_teachers = [fake_data.name() for _ in range(NUMBER_OF_TEACHERS)]
+    [session.add(Teacher(name=name)) for name in fake_teachers]
+    session.commit()
 
     return True
 
 
+@exeption_catcher(4)
 def create_subjects() -> bool:
     """Create fake subjects."""
     fake_data = Faker('uk_UA')
@@ -100,22 +83,15 @@ def create_subjects() -> bool:
     except Exception:
         number_of_teachers = NUMBER_OF_TEACHERS
 
-    try:
-        fake_subjects = [fake_data.job() for _ in range(number_of_subjects)]
-        for_subjects = [(subject, randint(1, number_of_teachers)) for subject in fake_subjects]
-        [session.add(Subject(subject=subject, teacher_id=id)) for subject, id in for_subjects]
-        session.commit()
-
-    except Exception as error:  # except Error as error:
-        logging.error(f'\t\t\tWrong insert subjects, error:\n{error}')
-        session.rollback()
-        return False
-    
-    logging.info(f'\t\t\t=== STEP: Subjects added.')
+    fake_subjects = [fake_data.job() for _ in range(number_of_subjects)]
+    for_subjects = [(subject, randint(1, number_of_teachers)) for subject in fake_subjects]
+    [session.add(Subject(subject=subject, teacher_id=id)) for subject, id in for_subjects]
+    session.commit()
 
     return True
 
 
+@exeption_catcher(5)
 def create_assessments() -> bool:
     """Create fake assessments."""
     fake_data = Faker('uk_UA')
@@ -132,41 +108,32 @@ def create_assessments() -> bool:
     except Exception:
         number_of_students = NUMBER_OF_STUDENTS
 
-    try:
-        assessments_provider = DynamicProvider(
-             provider_name='assessments',
-             elements=list(range(1, 6)),
-        )
-        fake_data.add_provider(assessments_provider)	
-        fake_assessments = [fake_data.assessments() for _ in range(NUMBER_OF_ASSESSMENTS)]
-        # до 20 оцінок у кожного студента з усіх предметів:       
-        for_assessments = []
-        student_id = 1
-        for value in fake_assessments:
-                    
-            # до 20 оцінок у кожного студента з усіх предметів:
-            if Counter(elem[3] for elem in for_assessments).get(student_id, 0) >= randint(6, 19):
-                student_id += 1
-
-            if student_id > number_of_students:
-                break  # ? why not 'while' whole loop
+    assessments_provider = DynamicProvider(
+            provider_name='assessments',
+            elements=list(range(1, 6)),
+    )
+    fake_data.add_provider(assessments_provider)	
+    fake_assessments = [fake_data.assessments() for _ in range(NUMBER_OF_ASSESSMENTS)]
+    # до 20 оцінок у кожного студента з усіх предметів:       
+    for_assessments = []
+    student_id = 1
+    for value in fake_assessments:
                 
-            for_assessments.append((value,
-                                    # datetime(2023, 2, randint(1, 28)).date(),
-                                    random_study_day(),
-                                    randint(1, number_of_subjects),
-                                    student_id))
+        # до 20 оцінок у кожного студента з усіх предметів:
+        if Counter(elem[3] for elem in for_assessments).get(student_id, 0) >= randint(6, 19):
+            student_id += 1
 
-        [session.add(Assessment(value_=p1, date_of=p2, subject_id=p3, student_id=p4)) for p1, p2, p3, p4 in for_assessments]
-        session.commit()
+        if student_id > number_of_students:
+            break  # ? why not 'while' whole loop
+            
+        for_assessments.append((value,
+                                # datetime(2023, 2, randint(1, 28)).date(),
+                                random_study_day(),
+                                randint(1, number_of_subjects),
+                                student_id))
 
-    except Exception as error:  # except Error as error:
-        logging.error(f'\t\t\tWrong insert assessments, error:\n{error}')
-        session.rollback()
-        return False
-    
-   
-    logging.info(f'\t\t\t=== STEP: Assesments added.')
+    [session.add(Assessment(value_=p1, date_of=p2, subject_id=p3, student_id=p4)) for p1, p2, p3, p4 in for_assessments]
+    session.commit()
 
     return True
 
