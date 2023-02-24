@@ -1,21 +1,31 @@
 import logging
 
 # from sqlalchemy.sql import text
-# from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload
 
 # export PYTHONPATH="${PYTHONPATH}:/1prj/example_sqlalchemy/"
 from database.connect_to_db_postgresql import session, engine
-
+from database.models import (
+    Group,
+    Student,
+    Subject,
+    Teacher,
+    Assessment,
+    )
 from my_select import selections
-import seed
-from seed import (
+from seeds.groups import create_groups
+from seeds.students import create_students
+from seeds.teachers import create_teachers
+from seeds.subjects import create_subjects
+from seeds.assessments import create_assessments
+from seeds.seedsconfig import (
     NUMBER_OF_GROUPS,
     NUMBER_OF_STUDENTS,
     NUMBER_OF_TEACHERS,
     NUMBER_OF_SUBJECTS,
     NUMBER_OF_ASSESSMENTS,
     )
-# from drop_tables import drop_table_if_exists
+from drop_tables import drop_table_if_exists
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(threadName)s %(message)s')
@@ -35,15 +45,15 @@ def main():
     # session.commit()
 
     try:
-        seed.create_groups()
+        create_groups()
         logging.info(f'\t\t\tRecorded {NUMBER_OF_GROUPS} group(s).')
-        seed.create_students()
+        create_students()
         logging.info(f'\t\t\tRecorded {NUMBER_OF_STUDENTS} student(s).')
-        seed.create_teachers()
+        create_teachers()
         logging.info(f'\t\t\tRecorded {NUMBER_OF_TEACHERS} teacher(s).')
-        seed.create_subjects()
+        create_subjects()
         logging.info(f'\t\t\tRecorded {NUMBER_OF_SUBJECTS} subject(s).')
-        seed.create_assessments()
+        create_assessments()
         logging.info(f'\t\t\tRecorded overall {NUMBER_OF_ASSESSMENTS} assessment(s).')
 
     except Exception as error:  # except Error as error:
