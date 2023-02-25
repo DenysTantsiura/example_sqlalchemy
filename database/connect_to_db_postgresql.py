@@ -37,8 +37,8 @@ def create_connection(*args, **kwargs) -> Union[int, tuple[Engine, Session]]:
     """Create a database connection (session) to a PostgreSQL database (engine)."""
     try:
         # Робота з ORM починається зі створення об'єкта, що інкапсулює доступ до бази даних, 
-        # в SQLAlchemy він називається engine,  echo щоб бачити запити БД в консолі, 8- скільки конектів до БД отримає наш застосунок
-        engine = create_engine(url_to_db, echo=True, pool_size=10)
+        # в SQLAlchemy він називається engine,  echo щоб бачити запити БД в консолі, 10- скільки конектів до БД
+        engine_ = create_engine(url_to_db, echo=True, pool_size=10)
         # engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
         #   dialect[+driver]://user:password@host/dbname[?key=value..]  # ? dbname = postgresql ?
         # сесії, які приховують створення з'єднань з базою та дають можливість виконувати 
@@ -46,17 +46,18 @@ def create_connection(*args, **kwargs) -> Union[int, tuple[Engine, Session]]:
         # створюємо клас DBSession, об'єкти якого є окремими сесіями доступу до бази даних. 
         # Кожна така сесія може зберігати набір транзакцій і виконувати їх тільки коли це дійсно потрібно. 
         # Таке "ледаче" виконання зменшує навантаження на базу та прискорює роботу програми.
-        db_session = sessionmaker(bind=engine)
+        db_session = sessionmaker(bind=engine_)
         # Сесія в ORM — це об'єкт, за допомогою якого ви можете керувати, коли саме накопичені 
         # зміни будуть застосовані до бази. Для цього є метод commit. Є методи для додавання 
         # одного або кількох об'єктів до бази (add, add_all).
-        session = db_session()
-        logging.debug(f'=== STEP 1 - Engine is Ok: \n{engine}')
+        session_ = db_session()
+        logging.debug(f'=== STEP 1 - Engine is Ok: \n{engine_}')
     
     except Exception as error:  # except Error as error:
         logging.error(f'Wrong connect. error:\n{error}')
         return 1
 
-    return engine, session
+    return engine_, session_
+
 
 engine, session = create_connection()

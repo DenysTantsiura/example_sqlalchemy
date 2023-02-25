@@ -1,7 +1,7 @@
 import logging
 
 # export PYTHONPATH="${PYTHONPATH}:/1prj/example_sqlalchemy/"
-from database.connect_to_db_postgresql import session, engine
+# from database.connect_to_db_postgresql import session, engine
 
 from my_select import selections
 import seed

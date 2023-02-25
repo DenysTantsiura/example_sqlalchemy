@@ -36,7 +36,7 @@ def drop_table_if_exists(engine: Engine) -> None:
 
     except Exception as error:
         logging.debug(f'\t\tError Droping:\n{error}\n')
-        return False
+        return None
     
     logging.debug(f'=== STEP 2: \nDROP TABLE IF EXISTS ...:')
     [logging.debug(f'{el}') for el in tables_]

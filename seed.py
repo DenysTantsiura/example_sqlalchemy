@@ -8,6 +8,7 @@ from random import randint
 
 from faker import Faker
 from faker.providers import DynamicProvider
+from sqlalchemy.exc import SQLAlchemyError
 
 # export PYTHONPATH="${PYTHONPATH}:/1prj/example_sqlalchemy/"
 from database.connect_to_db_postgresql import session
@@ -48,7 +49,7 @@ def create_students() -> bool:
 
     fake_students = [fake_data.name() for _ in range(NUMBER_OF_STUDENTS)]
     for_students = [(student, randint(1, NUMBER_OF_GROUPS)) for student in fake_students]
-    [session.add(Student(name=name, group_id=id)) for name, id in for_students]
+    [session.add(Student(name=name, group_id=id_)) for name, id_ in for_students]
     session.commit()
 
     return True
@@ -74,18 +75,18 @@ def create_subjects() -> bool:
     try:
         number_of_subjects = len(session.query(Subject).all()) or NUMBER_OF_SUBJECTS
 
-    except Exception:
+    except SQLAlchemyError:
         number_of_subjects = NUMBER_OF_SUBJECTS
 
     try:
         number_of_teachers = len(session.query(Teacher).all()) or NUMBER_OF_TEACHERS
 
-    except Exception:
+    except SQLAlchemyError:
         number_of_teachers = NUMBER_OF_TEACHERS
 
     fake_subjects = [fake_data.job() for _ in range(number_of_subjects)]
     for_subjects = [(subject, randint(1, number_of_teachers)) for subject in fake_subjects]
-    [session.add(Subject(subject=subject, teacher_id=id)) for subject, id in for_subjects]
+    [session.add(Subject(subject=subject, teacher_id=id_)) for subject, id_ in for_subjects]
     session.commit()
 
     return True
@@ -99,13 +100,13 @@ def create_assessments() -> bool:
     try:
         number_of_subjects = len(session.query(Subject).all()) or NUMBER_OF_SUBJECTS
 
-    except Exception:
+    except SQLAlchemyError:
         number_of_subjects = NUMBER_OF_SUBJECTS
 
     try:
         number_of_students = len(session.query(Student).all()) or NUMBER_OF_STUDENTS
 
-    except Exception:
+    except SQLAlchemyError:
         number_of_students = NUMBER_OF_STUDENTS
 
     assessments_provider = DynamicProvider(

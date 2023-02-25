@@ -1,6 +1,6 @@
 from functools import wraps
 import logging
-from typing import Callable  #, Any
+from typing import Callable
 
 from database.connect_to_db_postgresql import session
 
@@ -16,7 +16,7 @@ def exeption_catcher(*param):
         def wrapped(*args, **kwargs) -> bool:  # Any
             
             try:
-                function_result =  func(*args, **kwargs)
+                function_result = func(*args, **kwargs)
             
             except Exception as error:  # except Error as error:
                 logging.error(f'\t\t\tWrong execute {func.__name__}, error:\n{error}')

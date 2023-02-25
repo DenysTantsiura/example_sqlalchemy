@@ -71,8 +71,8 @@ class Assessment(Base):
     id = Column(Integer, primary_key=True)
     value_ = Column(NUMERIC)
     date_of = Column(DATE, nullable=False)
-    subject_id = Column(Integer, ForeignKey('subjects.id', onupdate='CASCADE', ondelete='SET NULL'))  # ForeignKey('subjects.id', ondelete='CASCADE') # ForeignKey('subjects.id'))
-    student_id = Column(Integer, ForeignKey('students.id', onupdate='CASCADE', ondelete='SET NULL'))  # ForeignKey('subjects.id'))
+    subject_id = Column(Integer, ForeignKey('subjects.id', onupdate='CASCADE', ondelete='SET NULL'))
+    student_id = Column(Integer, ForeignKey('students.id', onupdate='CASCADE', ondelete='SET NULL'))
     created_at = Column(TIMESTAMP(timezone=False), server_default=func.current_timestamp())
     subject = relationship(Subject)  # передати можна просто клас можна назву класу (без різниці), for SQLAlchemy
     student = relationship(Student)  # for SQLAlchemy
