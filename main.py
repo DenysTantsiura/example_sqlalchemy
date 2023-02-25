@@ -20,12 +20,12 @@ MODELS = {
 parser = argparse.ArgumentParser(
         description='Simple example sqlalchemy-alembic. Do not use "-*_id" simultaneously without "-m"!',
         epilog='''
-        Some examples:
-        python main.py -a create -m Group -n 'Group-4'\n
-        python main.py -a list -aid 5\n
-        python main.py -a remove -sid 7'''
+        Some examples: |_ 
+        python main.py -a create -m Group -n 'Group-4' _|_
+        python main.py -a list -aid 5 _|_
+        python main.py -a remove -sid 7 _|'''
     )
-# parser.add_argument('-a', '--action', action='store_true', help='Choice of action: create, list, update, remove.')
+
 parser.add_argument('-a', '--action', type=str, help=': Choice of action: create, list, update, remove.')
 parser.add_argument('-m', '--model', type=str, help=': Choice of table: Student, Teacher, Group, Subject, Assessment.')
 parser.add_argument('-n', '--name', type=str, help=': Choice of NAME (or SUBJECT).')
@@ -129,16 +129,6 @@ def handler_insert():
     session.commit()
 
 
-'''
-SELECTION = {'Student': select_students,
-          'Teacher': select_teachers,
-          'Group': select_groups,
-          'Subject': select_subjects,
-      'Assessment': select_assessments,
-    }
-'''
-
-
 @exeption_catcher(7)
 def handler_select():
     if not arguments.id:
@@ -188,19 +178,6 @@ ACTIONS = {
 
 if __name__ == '__main__':
 
-    # print(f'{name=}')
-    # print(f'{group_id=}')
-    # print(f'{group_name=}')
-    # print(f'{subject=}')
-    # print(f'{teacher_id=}')
-    # print(f'{value_=}')
-    # print(f'{subject_id=}')
-    # print(f'{student_id=}')
-    # print(f'{assessment_id=}')
-    # print(f'{date_of=}')
-    # print(f'{arguments.model=}')
-    # print(f'{arguments.id}')
-
     if not MODELS.get(arguments.model, None):
         print(f'Incorrect Model: {arguments.model}.')
         exit()
@@ -212,7 +189,7 @@ if __name__ == '__main__':
         print(f'I cant find this command: {arguments.action}')
 
 
-'''
+''' for test:
 python main.py -h
 python main.py -a create -m Group -n 'Group-4'
 python main.py -a create -m Group
