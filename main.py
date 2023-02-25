@@ -19,11 +19,10 @@ MODELS = {
 # prog - назва програми (за замовчуванням: os.path.basename(sys.argv[0]))
 parser = argparse.ArgumentParser(
         description='Simple example sqlalchemy-alembic. Do not use "-*_id" simultaneously without "-m"!',
-        epilog='''
-        Some examples:
-        python main.py -a create -m Group -n 'Group-4'\n
-        python main.py -a list -aid 5\n
-        python main.py -a remove -sid 7'''
+        epilog=f'Some examples:\t'
+        '|_ python main.py -a create -m Group -n "Group-4" _|_ '
+        'python main.py -a list -aid 5 _|_ '
+        'python main.py -a remove -sid 7 _|'
     )
 # parser.add_argument('-a', '--action', action='store_true', help='Choice of action: create, list, update, remove.')
 parser.add_argument('-a', '--action', type=str, help=': Choice of action: create, list, update, remove.')
